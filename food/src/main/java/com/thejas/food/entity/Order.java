@@ -1,24 +1,33 @@
 package com.thejas.food.entity;
 
-import java.util.List;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import lombok.Data;
-
+import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "food_order") // "order" is a reserved keyword in SQL
 @Data
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToMany
-    private List<MenuItem> items;
+    
     private String customerName;
     private String deliveryAddress;
-    private String status; // e.g., "Pending," "Processing," "Delivered"
+    private String status;
+    private LocalDateTime orderTime;
+    
+    @ManyToMany
+    @JoinTable(
+        name = "order_menu_items",
+        joinColumns = @JoinColumn(name = "order_id"),
+        inverseJoinColumns = @JoinColumn(name = "menu_item_id")
+    )
+    private List<MenuItem> items;
+    
+    @PrePersist
+    protected void onCreate() {
+        orderTime = LocalDateTime.now();
+    }
 }
